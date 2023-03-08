@@ -46,6 +46,10 @@ tail(vax$as_of_date)
 ```
 A: Last one is March 07, 2023.
 
+```{r}
+vax$as_of_date[nrow(vax)]
+```
+A: confirm it, march 7, 2023!
 
 Useful function for exploring the data! use skimr package **skimr**
 
@@ -77,7 +81,7 @@ A: 8.27 % are missing.
 
 > Q8[Optional]: Why might this data be missing?
 
-A: One reason is that it was at the early stages of vaccination efforts and the tracking wasn't standard or it was new.
+A: One reason is that it was at the early stages of vaccination efforts and the tracking wasn't standard or it was new. it coudl also be human error and fault in tracking.
 
 ## Working with the dates
 
@@ -132,4 +136,147 @@ n_distinct(vax$as_of_date)
 ```
 A: There are 114 unique dates in the dataset
 
+# Working with zip codes
+
+There are quite a few R packages that can help ease the pain of working with zip codes. we will try just one the smmler ones here called **zipcodeR** install it
+
+```{r}
+library(zipcodeR)
+```
+
+```{r}
+geocode_zip('92037')
+```
+```{r}
+geocode_zip('89509')
+```
+
+```{r}
+zip_distance('92037','92109')
+```
+```{r}
+reverse_zipcode(c('92037', "92109", "89509") )
+```
+> Q FInd the best and worst ratio of "median household income" in San Diego
+
+first we need to get san diego isolated!
+
+# Focus on San Diego
+
+```{r}
+# Subset to San Diego county only areas
+sd <- vax[vax$county=="San Diego" , ]
+sd.zip <- unique(vax$zip_code_tabulation_area[vax$county=="San Diego"])
+length(sd.zip)
+```
+Now do azipcode look up for the data we want
+
+```{r}
+sd.eco <- reverse_zipcode(sd.zip)
+```
+
+
+Now extract the "median household income" and "median home value" 
+
+Most expensive one?
+```{r}
+ord <- order(sd.eco$median_home_value, decreasing =TRUE) 
+ord
+head(sd.eco[ord,])
+```
+
+```{r}
+head(arrange(sd.eco, desc(median_home_value)))
+```
+
+I will use dyplr to help me do more involved selections (ie filter rows to include the subset of data we are interested in)
+```{r}
+library(dplyr)
+
+sd <- filter(vax, county == "San Diego")
+
+nrow(sd)
+```
+
+```{r}
+sd.10 <- filter(vax, county == "San Diego" &
+                age5_plus_population > 10000)
+```
+
+> Q11. How many distinct zip codes are listed for San Diego County?
+
+```{r}
+length(unique(sd$zip_code_tabulation_area))
+```
+A: There are 107 zip codes
+
+> Q12. What San Diego County Zip code area has the largest 12 + Population in this dataset?
+
+```{r}
+sd.12 <- which.max(sd$age12_plus_population)
+sd[sd.12,]
+```
+
+A: the zip code is 92154
+
+```{r}
+
+```
+
+>Q13. What is the overall average “Percent of Population Fully Vaccinated” value for all San Diego “County” as of “2023-03-07”?
+
+```{r}
+vax$as_of_date[nrow(vax)]
+```
+```{r}
+sd.latest <- filter(sd, as_of_date=="2023-03-07")
+head(sd.latest)
+mean(sd.latest$percent_of_population_fully_vaccinated, na.rm=TRUE)
+```
+A:  74%
+
+
+# now to make some figures~
+
+> Q14. Using either ggplot or base R graphics make a summary figure that shows the distribution of Percent of Population Fully Vaccinated values as of “2023-03-07”
+
+```{r}
+hist(sd.latest$percent_of_population_fully_vaccinated)
+```
+use ggplot2 baby!
+
+```{r}
+library(ggplot2)
+```
+
+
+```{r}
+ggplot(sd.latest) +
+  aes(percent_of_population_fully_vaccinated) +
+  geom_histogram()
+```
+```{r}
+ggplot(sd.latest) +
+  aes(percent_of_population_fully_vaccinated) +
+  geom_histogram(bins=20) +
+  xlab("Percent of People Fully vaccinated")
+```
+# Focus on UCSD/La Jolla
+UC San Diego resides in the 92037 ZIP code area and is listed with an age 5+ population size of 36,144.
+
+```{r}
+ucsd <- filter(sd, zip_code_tabulation_area=="92037")
+ucsd[1,]$age5_plus_population
+```
+>Q15. Using ggplot make a graph of the vaccination rate time course for the 92037 ZIP code area:
+
+```{r}
+ggplot(ucsd) +
+  aes(___,
+      ___) +
+  geom____() +
+  geom_line(group=1) +
+  ylim(c(0,1)) +
+  labs(___, y="Percent Vaccinated")
+```
 
