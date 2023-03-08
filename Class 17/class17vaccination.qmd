@@ -1,0 +1,11 @@
+---
+title: "Class 17 vaccination"
+author: "dairabel"
+format: pdf
+---
+
+```{r}
+vax <- read.csv("coveragebyzip_od_data_dictionary.csv.xlsx")
+
+```
+
