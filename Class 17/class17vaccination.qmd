@@ -3,9 +3,133 @@ title: "Class 17 vaccination"
 author: "dairabel"
 format: pdf
 ---
+# Background
+
+For todays class we will explore the data set on state wide vaccination rates from CA.Gov
+
+The goal of this hands-on mini-project is to examine and compare the Covid-19 vaccination rates around San Diego.
+
+We will start by downloading the most recently dated “Statewide COVID-19 Vaccines Administered by ZIP Code” CSV file from: https://data.ca.gov/dataset/covid-19-vaccine-progress-dashboard-data-by-zip-code
+
+## Data entry
 
 ```{r}
-vax <- read.csv("coveragebyzip_od_data_dictionary.csv.xlsx")
+vax <- read.csv("covid19vaccinesbyzipcode_test.csv")
+head(vax)
 
 ```
+> Q1. What column details the total number of people fully vaccinated?
+
+```{r}
+head(vax$persons_fully_vaccinated)
+```
+A: The column for total number of people fully vaccinated is the persons_fully_vaccinated column.
+
+> Q2. What column details the Zip code tabulation area?
+
+```{r}
+head(vax$zip_code_tabulation_area)
+```
+A: The second column, the zip_code_tabulation_area
+
+>Q3. What is the earliest date in this dataset?
+
+```{r}
+head(vax$as_of_date[1])
+```
+A: The earliest was on January 5th, 2021.
+
+>Q4. What is the latest date in this dataset?
+
+```{r}
+tail(vax$as_of_date)
+```
+A: Last one is March 07, 2023.
+
+
+Useful function for exploring the data! use skimr package **skimr**
+
+```{r}
+library(skimr)
+skim(vax)
+#or any package
+#skimr::skim(vax)
+```
+
+> Q5. How many numeric columns are in this dataset? 
+
+A: there are 13 numeric, based on skmir results
+
+> Q6. Note that there are “missing values” in the dataset. How many NA values there in the persons_fully_vaccinated column?
+
+```{r}
+n.missing <- sum(is.na(vax$persons_fully_vaccinated))
+n.missing
+```
+A: There are 16621 NA values in the persons_fully_vaccinated  column
+
+> Q7. What percent of persons_fully_vaccinated values are missing (to 2 significant figures)?
+
+```{r}
+round(n.missing/nrow(vax) * 100, 2)
+```
+A: 8.27 % are missing.
+
+> Q8[Optional]: Why might this data be missing?
+
+A: One reason is that it was at the early stages of vaccination efforts and the tracking wasn't standard or it was new.
+
+## Working with the dates
+
+We will use the **lubridate** package to help ease the pain of wrokig with times and dates
+
+```{r}
+library(lubridate)
+```
+
+```{r}
+today()
+```
+```{r}
+today() - vax$as_of_date[1]
+```
+
+```{r}
+today() -ymd("1992-8-10")
+```
+
+```{r}
+today() -ymd("2021-6-28")
+```
+
+```{r}
+vax$as_of_date[nrow(vax)] - vax$as_of_date[1]
+```
+
+> Q9. How many days have passed since the last update of the dataset? 
+
+I will conver the entire "as_of_date" column to be in lubridate format
+
+```{r}
+vax$as_of_date <- ymd(vax$as_of_date)
+```
+
+
+```{r}
+today() - vax$as_of_date[nrow(vax)]
+```
+A: 1 day!
+
+>Q10. How many unique dates are in the dataset (i.e. how many different dates are detailed)?
+
+```{r}
+unique <- length(unique(vax$as_of_date))
+unique
+```
+```{r}
+library(dplyr)
+n_distinct(vax$as_of_date)
+```
+A: There are 114 unique dates in the dataset
+
 
