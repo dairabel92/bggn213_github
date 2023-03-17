@@ -1,0 +1,141 @@
+---
+title: "Class 05: Data Visualization with GGPLOT"
+author: "Daira"
+format: gfm
+---
+# Plotting in R
+R has many plotting and visualization systems including "base" R
+```{r}
+head(cars, n=6)
+```
+## Base R Plot
+```{r}
+plot(cars)
+```
+Base R plots can be quite simple when compared to ggplot To use an add-on package (like ggplot) you have to get it on the computer. i.e install it. We use the function `install.packages()` with the name of the package we want to install.
+
+```{r}
+library(ggplot2)
+```
+ggplot is much more verbose than base R plot, and every single ggplot needs atleast 3 things:
+
+-   **Data** (data.frame with information we want to plot)
+-   **Aesthetics** or aes (how we manipulate the data, how it maps ie x= and y=)
+-   **Geom** (geometry like geom_point(),or geom_line() ie the plot type )
+
+```{r}
+ggplot(data=cars) + 
+  aes(x=speed, y=dist) +
+  geom_point() + 
+  theme_classic() +
+  geom_smooth(se=FALSE, method="lm") +
+  labs(title="Car Scatterplot") +
+  xlab("speed mph") +
+  ylab("distance ft")
+```
+
+## Gene Expression Time
+The code to read the data
+```{r}
+url <- "https://bioboot.github.io/bimm143_S20/class-material/up_down_expression.txt"
+genes <- read.delim(url)
+head(genes)
+```
+Finding information about the data we just download. 
+
+ > Q. How many genes are in this dataset?
+
+```{r}
+nrow(genes)
+print("There are 5,196 genes in this dataset")
+```
+```{r}
+ncol(genes)
+print("There are 4 columns")
+```
+> Q. How Many Genes are Upregulated
+
+```{r}
+table(genes$State)
+table(genes$State =="up")
+sum(genes$State == "up")
+print("There are 127 genes upregulated")
+```
+> Q. The fraction of genes upregulated is?
+
+```{r}
+round( table(genes$State)/nrow(genes) * 100, 2 )
+print("The fraction of genes upregualted is 2.44")
+```
+```{r}
+ggplot(genes) +
+  aes(x=Condition1, y=Condition2, color=State) +
+  geom_point() 
+```
+I can save any ggplot object for use later
+```{r}
+p <- ggplot(genes) +
+  aes(x=Condition1, y=Condition2, col=State) +
+  geom_point()
+```
+```{r}
+p + scale_color_manual(
+  values=c("blue","gray", "red")) +
+  labs(title = "Gene Expression changes upon Drug Resistance", subtitle="Scatterplot", x= "Control", y= "Drug Treatment")
+
+```
+## Gapminder Time!
+## FACETS!
+## A more complex ggplot
+```{r}
+url <- "https://raw.githubusercontent.com/jennybc/gapminder/master/inst/extdata/gapminder.tsv"
+
+gapminder <- read.delim(url)
+```
+ let's get a peek
+ > Q. How many countries are in this dataset?
+ 
+```{r}
+head(gapminder)
+```
+```{r}
+length(unique(gapminder$country))
+```
+> Q. How many years are in this dataset?
+
+```{r}
+length(unique(gapminder$year))
+min(unique(gapminder$year))
+max(unique(gapminder$year))
+```
+> Q. Find country with smallest population
+
+```{r}
+min(gapminder$pop)
+```
+```{r}
+ind <- which.min(gapminder$pop)
+gapminder$country[ind]
+```
+Now that we pulled out country, can we pull out the whole row?
+```{r}
+gapminder[ind,]
+```
+#time to plot it
+Life Expectancy vs gdpPercap
+```{r}
+ggplot(gapminder)+
+  aes(x=gdpPercap, y=lifeExp, color=continent) +
+  geom_point(alpha=0.5) +
+  theme_classic()
+```
+Lets facet by continents!
+```{r}
+ggplot(gapminder)+
+  aes(x=gdpPercap, y=lifeExp, color=continent) +
+  geom_point(alpha=0.5) +
+  theme_classic() +
+  facet_wrap(~continent)
+
+
+```
