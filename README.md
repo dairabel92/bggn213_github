@@ -1,4 +1,4 @@
-# BGGGGN
+# BGGN_213 
 a repository for our class [BGGN213](https://bioboot.github.io/bggn213_W23/)
 
 now we are making changes online! at UC San Diego
